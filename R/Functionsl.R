@@ -1,4 +1,85 @@
 
+decomp.function.time1 <- function(DT = .SD,sex = sex[1]){
+  #sex <- 'm'
+  # x <- 1980
+  
+  years <- unique(DT$Year)
+  periods <- paste0(years[-length(years)],'-',years[-1])
+  
+  decomp.time <- lapply(years[-length(years)], function(x, years2, DT, sex, periods){
+    
+    x2 <- years2[which(years2 == x)+1]
+    
+    mx1 <- c(DT[Year == x]$mx*DT[Year == x]$rest.prop,
+             DT[Year == x]$mx*DT[Year == x]$HIV.prop)
+    
+    mx2 <- c(DT[Year == x2]$mx*DT[Year == x2]$rest.prop,
+             DT[Year == x2]$mx*DT[Year == x2]$HIV.prop)
+    
+    decomp <- horiuchi(edfrommxc, pars1 = mx1, pars2 = mx2,N = 50, sex = sex)
+    
+    dim(decomp) <- c(111,2)
+    
+    decomp <- data.table(decomp)
+    
+    names(decomp) <- c('rest','hiv')
+    
+    decomp$age <- 0:110
+    
+    decomp$period <- periods[which(years2 == x)]
+    
+    decomp
+    
+  }, years2 = years, DT = DT,sex = sex, periods = periods)
+  
+  res <- do.call(rbind,decomp.time)
+  
+  res
+  
+}
+
+
+decomp.function.time2 <- function(DT = .SD,sex = sex[1]){
+  #sex <- 'm'
+  # x <- 1980
+  
+  years <- unique(DT$Year)
+  periods <- paste0(years[-length(years)],'-',years[-1])
+  
+  decomp.time <- lapply(years[-length(years)], function(x, years2, DT, sex, periods){
+    
+    x2 <- years2[which(years2 == x)+1]
+    
+    mx1 <- c(DT[Year == x]$mx*DT[Year == x]$rest.prop,
+             DT[Year == x]$mx*DT[Year == x]$HIV.prop)
+    
+    mx2 <- c(DT[Year == x2]$mx*DT[Year == x2]$rest.prop,
+             DT[Year == x2]$mx*DT[Year == x2]$HIV.prop)
+    
+    decomp <- horiuchi(e0frommxc, pars1 = mx1, pars2 = mx2,N = 50, sex = sex)
+    
+    dim(decomp) <- c(111,2)
+    
+    decomp <- data.table(decomp)
+    
+    names(decomp) <- c('rest','hiv')
+    
+    decomp$age <- 0:110
+    
+    decomp$period <- periods[which(years2 == x)]
+    
+    decomp
+    
+  }, years2 = years, DT = DT,sex = sex, periods = periods)
+  
+  res <- do.call(rbind,decomp.time)
+  
+  res
+  
+}
+
+
+
 decomp.function <- function(DT = .SD,sex = sex[1]){
   #sex <- 'm'
   white.mx <- c(DT[Race.code == '2106-3']$mx*DT[Race.code == '2106-3']$rest.prop,
